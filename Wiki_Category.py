@@ -11,6 +11,7 @@ parser.add_argument('--out_dir', type=str, default='/output')
 args = parser.parse_args()
 
 c_p = os.getcwd()
+'ss'
 print(c_p)
 
 wikipedia = MediaWiki()
