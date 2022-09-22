@@ -10,7 +10,7 @@ from haystack.nodes import BM25Retriever
 from haystack.document_stores import ElasticsearchDocumentStore
 from haystack.nodes import BM25Retriever
 from haystack.pipelines import ExtractiveQAPipeline
-
+'ss'
 path = '../data.pdf'
 '''
 document_store = FAISSDocumentStore()
