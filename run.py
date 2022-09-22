@@ -10,3 +10,5 @@ w_e = Wiki_Category_extractor()
 w_e.read(args.in_dir)
 result = w_e.extract()
 w_e.save()
+
+'tets'
