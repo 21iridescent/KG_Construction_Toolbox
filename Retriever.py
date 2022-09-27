@@ -10,15 +10,14 @@ from haystack.nodes import BM25Retriever
 from haystack.document_stores import ElasticsearchDocumentStore
 from haystack.nodes import BM25Retriever
 from haystack.pipelines import ExtractiveQAPipeline
-'ss'
-path = '../data.pdf'
+
+# path = '../data.pdf'
 '''
 document_store = FAISSDocumentStore()
 document_store.delete_documents()
 '''
+def prepare_retrieve(path, document_store, split_length=3):
 
-
-def prepare_retrieve(path):
     converter = PDFToTextConverter(remove_numeric_tables=True, valid_languages=["en"])
     doc_pdf = converter.convert(file_path=path)[0]
 
@@ -27,7 +26,7 @@ def prepare_retrieve(path):
         clean_whitespace=True,
         clean_header_footer=True,
         split_by="sentence",
-        split_length=1,
+        split_length=split_length,
         split_respect_sentence_boundary=False,
         # remove_substrings = string_list
     )
@@ -40,12 +39,15 @@ def prepare_retrieve(path):
     # document_store = FAISSDocumentStore(faiss_index_factory_str="Flat")
 
     # document_store = FAISSDocumentStore.load(index_path="my_faiss")
+    document_store.delete_documents()
+
     try:
         document_store = FAISSDocumentStore.load(index_path="../my_faiss")
-        print(document_store)
+        # print(document_store)
         # document_store = FAISSDocumentStore(index_path="my_faiss")
     except (TypeError, ValueError):
-        document_store = FAISSDocumentStore(duplicate_documents='skip')
+        document_store = FAISSDocumentStore()
+        document_store.delete_documents()
 
     retriever = EmbeddingRetriever(
         document_store=document_store,
@@ -54,13 +56,12 @@ def prepare_retrieve(path):
         use_gpu=True
     )
 
-    document_store.delete_documents()
+    #document_store.delete_documents()
     document_store.write_documents(docs_default, duplicate_documents='skip')
     document_store.update_embeddings(retriever)
     document_store.save("my_faiss")
 
     return document_store, retriever
-
 
 '''
 document_store = FAISSDocumentStore.load(index_path="my_faiss")
@@ -72,10 +73,10 @@ retriever = EmbeddingRetriever(
     use_gpu=True
 )
 '''
-document_store = FAISSDocumentStore.load(index_path="../my_faiss")
 
+# document_store = FAISSDocumentStore.load(index_path="../my_faiss")
 
-def return_candidate_documents(document_store, top_k=3):
+def return_candidate_documents(document_store, query, top_k=3):
     retriever = EmbeddingRetriever(
         document_store=document_store,
         embedding_model="sentence-transformers/multi-qa-mpnet-base-dot-v1",
@@ -83,20 +84,18 @@ def return_candidate_documents(document_store, top_k=3):
         use_gpu=True
     )
     candidate_documents = retriever.retrieve(
-        query="international climate conferences",
+        query=query,
         top_k=top_k,
         # filters={"year": ["2015", "2016", "2017"]}
     )
     results = []
     for i in range(len(candidate_documents)):
         results.append(candidate_documents[i].content)
-
     return results
 
-
 # d, retriever = prepare_retrieve(path)
-results = return_candidate_documents(document_store, top_k=3)
-print(results)
+# results = return_candidate_documents(document_store, top_k=3)
+# print(results)
 # print(candidate_documents[0].content)
 
 # print(candidate_documents)

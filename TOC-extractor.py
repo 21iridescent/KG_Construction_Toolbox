@@ -3,13 +3,16 @@ from re import L
 from pdfminer.pdfparser import PDFParser
 from pdfminer.pdfdocument import PDFDocument
 import numpy as np
+import pandas as pd
 
+'''
 # Open a PDF document.
 fp = open('Data_Mining.pdf', 'rb')
 parser = PDFParser(fp)
 document = PDFDocument(parser)
 # Get the outlines of the document.
 outlines = document.get_outlines()
+'''
 
 def toc_relation_extractor(path):
     fp = open(path, 'rb')
@@ -46,7 +49,7 @@ def toc_relation_extractor(path):
         if current_index - previous_index == 0 and current_index > 1:
             # previous_index = current_index
             super_topics = toc_list[current_index-2][-1]
-            relation = [current_name, " is a sub-chapter of ", super_topics]
+            relation = [current_name, "is a sub-chapter of", super_topics]
             print(relation)
             triples.append(relation)
             previous_name = current_name
@@ -65,5 +68,25 @@ def toc_relation_extractor(path):
     #print('log')
     return triples
 
-triples = toc_relation_extractor('Data_Mining.pdf')
+def save(triples, path='../toc.xlsx'):
+    # file_name = args.in_dir.strip('.xlsx')
+    df = pd.DataFrame(triples, columns=['subject', 'relation', 'object'])
+    #csv.to_excel('1.xlsx', sheet_name='data')
+    '''
+    file_name = 'result_' + args.in_dir
+    folder = os.getcwd() + args.out_dir
+
+    if not os.path.exists(folder):
+        os.makedirs(folder)
+   
+    folder_path = folder + '/' + file_name
+    print(folder_path)
+    # print(self.cat_rel)
+    '''
+    df.to_excel(path, index=False)
+
+#triples = toc_relation_extractor('Data_Mining.pdf')
+
+triples = toc_relation_extractor('data.pdf')
+save(triples)
 
